@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Fire Prediction Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="header-title">Forest Fire Prediction & Spread Simulation</h1>
+            <p class="header-subtitle">Advanced wildfire risk assessment and simulation platform</p>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="control-section">
+                    <h2 class="section-title">Prediction Settings</h2>
+                    
+                    <div class="form-group">
+                        <label for="region-select" class="form-label">Select Region</label>
+                        <select id="region-select" class="form-select">
+                            <option value="">Choose a region...</option>
+                            <option value="uttarakhand">Uttarakhand</option>
+                            <option value="himachal-pradesh">Himachal Pradesh</option>
+                            <option value="madhya-pradesh">Madhya Pradesh</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prediction-date" class="form-label">Prediction Date</label>
+                        <input type="date" id="prediction-date" class="form-input">
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary">
+                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                            Predict Fire Risk
+                        </button>
+                        <button class="btn btn-secondary">
+                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polygon points="10,8 16,12 10,16 10,8"/>
+                            </svg>
+                            Simulate Fire Spread
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Timeline Controls -->
+                <div class="control-section">
+                    <h3 class="section-subtitle">Simulation Timeline</h3>
+                    <div class="timeline-container">
+                        <label for="timeline-slider" class="form-label">Time Step</label>
+                        <div class="slider-container">
+                            <input type="range" id="timeline-slider" class="timeline-slider" min="0" max="4" value="0" step="1">
+                            <div class="slider-labels">
+                                <span class="slider-label active">1h</span>
+                                <span class="slider-label">2h</span>
+                                <span class="slider-label">3h</span>
+                                <span class="slider-label">6h</span>
+                                <span class="slider-label">12h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Viewer -->
+            <div class="map-section">
+                <div class="map-header">
+                    <h2 class="section-title">Fire Risk Heatmap</h2>
+                    <button class="btn btn-outline">
+                        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7,10 12,15 17,10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download Map
+                    </button>
+                </div>
+                
+                <div class="map-viewer">
+                    <div class="map-placeholder">
+                        <div class="placeholder-content">
+                            <svg class="placeholder-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <polygon points="3,11 22,2 13,21 11,13 3,11"/>
+                            </svg>
+                            <h3 class="placeholder-title">Select region and date to generate prediction</h3>
+                            <p class="placeholder-text">Fire risk heatmap and simulation results will appear here</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="map-legend">
+                    <h4 class="legend-title">Risk Level</h4>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #22c55e;"></div>
+                            <span class="legend-label">Low</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #eab308;"></div>
+                            <span class="legend-label">Moderate</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #f97316;"></div>
+                            <span class="legend-label">High</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #ef4444;"></div>
+                            <span class="legend-label">Critical</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-label">Status:</span>
+                <span class="status-value ready">Ready</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Last Updated:</span>
+                <span class="status-value">--</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple timeline slider interaction
+        const slider = document.getElementById('timeline-slider');
+        const labels = document.querySelectorAll('.slider-label');
+        
+        slider.addEventListener('input', function() {
+            labels.forEach((label, index) => {
+                label.classList.toggle('active', index === parseInt(this.value));
+            });
+        });
+
+        // Form validation and interaction
+        const regionSelect = document.getElementById('region-select');
+        const dateInput = document.getElementById('prediction-date');
+        const predictBtn = document.querySelector('.btn-primary');
+        const simulateBtn = document.querySelector('.btn-secondary');
+
+        function updateButtonStates() {
+            const hasRegion = regionSelect.value !== '';
+            const hasDate = dateInput.value !== '';
+            const isValid = hasRegion && hasDate;
+            
+            predictBtn.disabled = !isValid;
+            simulateBtn.disabled = !isValid;
+        }
+
+        regionSelect.addEventListener('change', updateButtonStates);
+        dateInput.addEventListener('change', updateButtonStates);
+        
+        // Initialize button states
+        updateButtonStates();
+    </script>
+</body>
+</html>
