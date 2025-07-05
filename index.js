@@ -9,6 +9,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded ({extended: true}));   
 // app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "/public"))); 
+app.use(express.json());
 app.engine("ejs", ejsMate);
 
 app.listen(8080, () => {
@@ -36,6 +37,33 @@ app.get('/simulate', (req, res) => {
   });
 });
 
+app.post("/simulate-fire", (req, res) => {
+  const { coords } = req.body;
+
+  if (!coords) {
+    return res.status(400).json({ message: "Coordinates are required." });
+  }
+
+  // Simulate fire spread here (you can later plug in your ML model)
+  console.log("Simulating fire at:", coords);
+
+  // Dummy response for now
+  return res.json({
+    success: true,
+    images: {
+      "1hr": "/images/1hr.png",
+      "2hr": "/images/2hr.png",
+      // ...
+    },
+    stats: {
+      "1hr": "15 hectares",
+      "2hr": "45 hectares",
+      // ...
+    },
+  });
+});
+
+
 app.get('/download', (req, res) => {
   res.render('download', { 
     title: 'Home', 
@@ -43,11 +71,11 @@ app.get('/download', (req, res) => {
   });
 });
 
-app.post('/predict', (req, res) => {
-  // Process prediction
-  res.render('predict', { 
-    title: 'Predict', 
-    currentPage: 'predict',
-    prediction: results 
-  });
-});
+// app.post('/predict', (req, res) => {
+//   // Process prediction
+//   res.render('predict', { 
+//     title: 'Predict', 
+//     currentPage: 'predict',
+//     prediction: results 
+//   });
+// });

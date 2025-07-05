@@ -7,80 +7,146 @@
     </div>
 </div>
 
-<section class="simulation-section">
+<section class="fire-simulation-section">
     <div class="container">
-        <div class="simulation-controls">
-            <form class="simulation-form" id="simulation-form" action="/simulate" method="POST">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="sim-region" class="form-label">Region</label>
-                        <select id="sim-region" name="region" class="form-select" required>
-                            <option value="">Choose a region...</option>
-                            <option value="uttarakhand">Uttarakhand</option>
-                            <option value="himachal-pradesh">Himachal Pradesh</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="ignition-point" class="form-label">Ignition Point</label>
-                        <input type="text" id="ignition-point" name="ignitionPoint" class="form-input" placeholder="Click on map or enter coordinates" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Simulate Spread</button>
-            </form>
-        </div>
-        
-        <% if (typeof simulation !== 'undefined' && simulation) { %>
-        <div class="simulation-results">
-            <div class="simulation-viewer">
-                <div class="map-display">
-                    <img id="simulation-map" src="/placeholder.svg?height=500&width=800" alt="Fire Spread Simulation" class="simulation-map">
-                    <div class="time-indicator">
-                        <span id="current-time">1 Hour</span>
-                    </div>
-                </div>
-                
-                <div class="timeline-controls">
-                    <div class="timeline-header">
-                        <h3>Fire Spread Timeline</h3>
-                        <div class="playback-controls">
-                            <button id="play-btn" class="control-btn">▶️</button>
-                            <button id="pause-btn" class="control-btn">⏸️</button>
-                            <button id="reset-btn" class="control-btn">⏮️</button>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-slider">
-                        <input type="range" id="time-slider" min="0" max="5" value="0" step="1" class="slider">
-                        <div class="timeline-labels">
-                            <span data-time="0">1h</span>
-                            <span data-time="1">2h</span>
-                            <span data-time="2">3h</span>
-                            <span data-time="3">6h</span>
-                            <span data-time="4">12h</span>
-                            <span data-time="5">24h</span>
-                        </div>
+        <!-- Main Simulation Interface -->
+        <div class="simulation-interface">
+            <!-- Left: Map Container -->
+            <div class="map-container-wrapper">
+                <div class="leaflet-map-container" id="uttarakhand-map">
+                    <!-- Leaflet map will be initialized here -->
+                    <div class="map-placeholder">
+                        <p>🗺️ Uttarakhand Physical Map</p>
+                        <small>Click on the map to set ignition point</small>
                     </div>
                 </div>
             </div>
             
-            <div class="simulation-info">
-                <h4>Simulation Details</h4>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Total Area Affected:</span>
-                        <span class="info-value">2,450 hectares</span>
+            <!-- Right: Weather Info Panel -->
+            <div class="weather-info-panel">
+                <div class="weather-header">
+                    <h3>Current Weather Conditions</h3>
+                    
+                </div>
+                
+                <div class="weather-metrics">
+                    <div class="weather-metric">
+                        <div class="metric-icon">🌡️</div>
+                        <div class="metric-details">
+                            <span class="metric-label">Temperature</span>
+                            <span class="metric-value">28°C</span>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Peak Spread Rate:</span>
-                        <span class="info-value">15 km/h</span>
+                    
+                    <div class="weather-metric">
+                        <div class="metric-icon">💧</div>
+                        <div class="metric-details">
+                            <span class="metric-label">Humidity</span>
+                            <span class="metric-value">45%</span>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Wind Direction:</span>
-                        <span class="info-value">Northeast</span>
+                    
+                    <div class="weather-metric">
+                        <div class="metric-icon">💨</div>
+                        <div class="metric-details">
+                            <span class="metric-label">Wind Speed</span>
+                            <span class="metric-value">12 km/h</span>
+                        </div>
                     </div>
+                    
+                    <div class="weather-metric">
+                        <div class="metric-icon">🧭</div>
+                        <div class="metric-details">
+                            <span class="metric-label">Wind Direction</span>
+                            <span class="metric-value">Northeast</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="simulation-controls">
+                    <input type="hidden" id="ignition-coords" name="ignitionCoords">
+                    <button type="button" class="btn btn-primary btn-simulate" id="simulate-fire-btn">
+                        🔥 Simulate Fire Spread
+                    </button>
+                    <p class="simulation-note">Click on the map to select ignition point first</p>
                 </div>
             </div>
         </div>
-        <% } %>
+        
+        <!-- Simulation Results Grid -->
+        <div class="simulation-results-grid" id="simulation-results" style="display: none;">
+            <div class="results-header">
+                <h3>Fire Spread Simulation Results</h3>
+                <p>Predicted fire spread progression over time</p>
+            </div>
+            
+            <div class="time-series-grid">
+                <div class="time-series-item">
+                    <div class="time-label">After 1 Hour</div>
+                    <div class="simulation-image-container">
+                        <img src="/placeholder.svg?height=200&width=300&text=1hr+Fire+Spread" alt="Fire spread after 1 hour" class="simulation-result-image">
+                    </div>
+                    <div class="spread-stats">
+                        <span>Area: 15 hectares</span>
+                    </div>
+                </div>
+                
+                <div class="time-series-item">
+                    <div class="time-label">After 2 Hours</div>
+                    <div class="simulation-image-container">
+                        <img src="/placeholder.svg?height=200&width=300&text=2hr+Fire+Spread" alt="Fire spread after 2 hours" class="simulation-result-image">
+                    </div>
+                    <div class="spread-stats">
+                        <span>Area: 45 hectares</span>
+                    </div>
+                </div>
+                
+                <div class="time-series-item">
+                    <div class="time-label">After 3 Hours</div>
+                    <div class="simulation-image-container">
+                        <img src="/placeholder.svg?height=200&width=300&text=3hr+Fire+Spread" alt="Fire spread after 3 hours" class="simulation-result-image">
+                    </div>
+                    <div class="spread-stats">
+                        <span>Area: 85 hectares</span>
+                    </div>
+                </div>
+                
+                <div class="time-series-item">
+                    <div class="time-label">After 6 Hours</div>
+                    <div class="simulation-image-container">
+                        <img src="/placeholder.svg?height=200&width=300&text=6hr+Fire+Spread" alt="Fire spread after 6 hours" class="simulation-result-image">
+                    </div>
+                    <div class="spread-stats">
+                        <span>Area: 180 hectares</span>
+                    </div>
+                </div>
+                
+                <div class="time-series-item">
+                    <div class="time-label">After 12 Hours</div>
+                    <div class="simulation-image-container">
+                        <img src="/placeholder.svg?height=200&width=300&text=12hr+Fire+Spread" alt="Fire spread after 12 hours" class="simulation-result-image">
+                    </div>
+                    <div class="spread-stats">
+                        <span>Area: 320 hectares</span>
+                    </div>
+                </div>
+                
+                <div class="time-series-item">
+                    <div class="time-label">After 24 Hours</div>
+                    <div class="simulation-image-container">
+                        <img src="/placeholder.svg?height=200&width=300&text=24hr+Fire+Spread" alt="Fire spread after 24 hours" class="simulation-result-image">
+                    </div>
+                    <div class="spread-stats">
+                        <span>Area: 580 hectares</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-actions">
+                <button class="btn btn-secondary">📥 Download All Results</button>
+                <button class="btn btn-outline">🔄 Run New Simulation</button>
+            </div>
+        </div>
     </div>
 </section>
+

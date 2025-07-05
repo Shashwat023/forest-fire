@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> - Forest Fire Insight</title>
+    <title>Forest Fire Insight</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
 </head>
 <body>
     <%- include('partials/header') %>
@@ -16,5 +18,80 @@
     <%- include('partials/footer') %>
     
     <script src="/js/main.js"></script>
+    <script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+  const map = L.map("uttarakhand-map").setView([30.0668, 79.0193], 8); // Zoom centered over Uttarakhand
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors",
+  }).addTo(map);
+
+  let fireMarker = null;
+
+  map.on("click", function (e) {
+    const { lat, lng } = e.latlng;
+
+    if (fireMarker) {
+      map.removeLayer(fireMarker);
+    }
+
+    const fireIcon = L.divIcon({
+      className: "custom-fire-icon",
+      html: "🔥",
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+    });
+
+    fireMarker = L.marker([lat, lng], { icon: fireIcon }).addTo(map);
+
+    document.getElementById("ignition-coords").value = `${lat},${lng}`;
+
+    console.log("Ignition Point Set:", lat, lng);
+
+    // on click :- coordinates send to backend for ml model
+    document.getElementById("simulate-fire-btn").addEventListener("click", async () => {
+  const coords = document.getElementById("ignition-coords").value;
+
+  if (!coords) {
+    alert("Please click on the map to set an ignition point first.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/simulate-fire", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ coords }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // You can now populate your simulation results grid dynamically
+      console.log("Simulation successful:", data);
+      document.getElementById("simulation-results").style.display = "block";
+
+      // Example: populate with real image URLs if available
+      // You can update the image src or text content here as needed
+
+    } else {
+      alert("Simulation failed: " + data.message);
+    }
+  } catch (error) {
+    console.error("Simulation error:", error);
+    alert("Something went wrong while simulating.");
+  }
+});
+
+  });
+});
+
+</script>
+
 </body>
 </html>

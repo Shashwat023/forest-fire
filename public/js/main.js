@@ -29,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const timeLabels = ["1 Hour", "2 Hours", "3 Hours", "6 Hours", "12 Hours", "24 Hours"]
     const mapImages = [
       "/placeholder.svg?height=500&width=800&text=1h",
-      "/placeholder.svg?height=500&width=800&text=2h",
       "/placeholder.svg?height=500&width=800&text=3h",
       "/placeholder.svg?height=500&width=800&text=6h",
       "/placeholder.svg?height=500&width=800&text=12h",
@@ -153,5 +152,192 @@ document.addEventListener("DOMContentLoaded", () => {
   const today = new Date().toISOString().split("T")[0]
   dateInputs.forEach((input) => {
     input.min = today
+  })
+
+  // Fire Simulation Functionality
+  const simulateBtn = document.getElementById("simulate-fire-btn")
+  const simulationResults = document.getElementById("simulation-results")
+  const mapContainer = document.getElementById("uttarakhand-map")
+
+  let selectedIgnitionPoint = null
+  const leafletMap = null
+
+  // Initialize Leaflet Map (placeholder for now)
+  function initializeMap() {
+    // This is where you would initialize the actual Leaflet map
+    // For now, we'll simulate map click functionality
+    if (mapContainer) {
+      mapContainer.addEventListener("click", (e) => {
+        // Simulate selecting an ignition point
+        const rect = mapContainer.getBoundingClientRect()
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+
+        selectedIgnitionPoint = { x, y }
+
+        // Visual feedback for selected point
+        const existingMarker = mapContainer.querySelector(".ignition-marker")
+        if (existingMarker) {
+          existingMarker.remove()
+        }
+
+        const marker = document.createElement("div")
+        marker.className = "ignition-marker"
+        marker.style.cssText = `
+          position: absolute;
+          left: ${x - 10}px;
+          top: ${y - 10}px;
+          width: 20px;
+          height: 20px;
+          background: #ff5a5f;
+          border: 3px solid white;
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          z-index: 100;
+          animation: pulse 2s infinite;
+        `
+
+        mapContainer.appendChild(marker)
+
+        // Enable simulate button
+        if (simulateBtn) {
+          simulateBtn.disabled = false
+          simulateBtn.textContent = "🔥 Simulate Fire Spread"
+          simulateBtn.classList.remove("btn-disabled")
+        }
+
+        // Add pulse animation
+        const style = document.createElement("style")
+        style.textContent = `
+          @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+        `
+        document.head.appendChild(style)
+      })
+    }
+  }
+
+  // Handle simulation button click
+  if (simulateBtn) {
+    simulateBtn.addEventListener("click", () => {
+      if (!selectedIgnitionPoint) {
+        alert("Please click on the map to select an ignition point first!")
+        return
+      }
+
+      // Show loading state
+      simulateBtn.disabled = true
+      simulateBtn.textContent = "🔄 Simulating..."
+      simulateBtn.classList.add("btn-disabled")
+
+      // Simulate processing time
+      setTimeout(() => {
+        // Show results
+        if (simulationResults) {
+          simulationResults.style.display = "block"
+          simulationResults.classList.add("fade-in")
+
+          // Scroll to results
+          simulationResults.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          })
+        }
+
+        // Reset button
+        simulateBtn.disabled = false
+        simulateBtn.textContent = "🔥 Simulate Fire Spread"
+        simulateBtn.classList.remove("btn-disabled")
+
+        // Update weather data (simulate real-time data)
+        updateWeatherData()
+      }, 2000) // 2 second simulation delay
+    })
+  }
+
+  // Simulate weather data updates
+  function updateWeatherData() {
+    const weatherMetrics = document.querySelectorAll(".metric-value")
+    if (weatherMetrics.length >= 4) {
+      // Simulate slight variations in weather data
+      const temp = 26 + Math.floor(Math.random() * 6) // 26-31°C
+      const humidity = 40 + Math.floor(Math.random() * 20) // 40-60%
+      const windSpeed = 8 + Math.floor(Math.random() * 10) // 8-18 km/h
+      const directions = ["North", "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest"]
+      const windDirection = directions[Math.floor(Math.random() * directions.length)]
+
+      weatherMetrics[0].textContent = `${temp}°C`
+      weatherMetrics[1].textContent = `${humidity}%`
+      weatherMetrics[2].textContent = `${windSpeed} km/h`
+      weatherMetrics[3].textContent = windDirection
+    }
+  }
+
+  // Image hover effects for simulation results
+  function addImageHoverEffects() {
+    const resultImages = document.querySelectorAll(".simulation-result-image")
+    resultImages.forEach((img) => {
+      img.addEventListener("mouseenter", function () {
+        this.style.cursor = "pointer"
+      })
+
+      img.addEventListener("click", function () {
+        // Could open a modal or larger view
+        console.log("Clicked on simulation result:", this.alt)
+      })
+    })
+  }
+
+  // Initialize everything
+  initializeMap()
+
+  // Add hover effects when results are shown
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.target.id === "simulation-results" && mutation.target.style.display !== "none") {
+        setTimeout(addImageHoverEffects, 100)
+      }
+    })
+  })
+
+  if (simulationResults) {
+    observer.observe(simulationResults, {
+      attributes: true,
+      attributeFilter: ["style"],
+    })
+  }
+
+  // Handle "Run New Simulation" button
+  document.addEventListener("click", (e) => {
+    if (e.target.textContent.includes("Run New Simulation")) {
+      // Reset the simulation
+      if (simulationResults) {
+        simulationResults.style.display = "none"
+      }
+
+      // Clear ignition point
+      const marker = mapContainer?.querySelector(".ignition-marker")
+      if (marker) {
+        marker.remove()
+      }
+
+      selectedIgnitionPoint = null
+
+      // Reset button state
+      if (simulateBtn) {
+        simulateBtn.disabled = true
+        simulateBtn.textContent = "🔥 Simulate Fire Spread"
+        simulateBtn.classList.add("btn-disabled")
+      }
+
+      // Scroll back to top
+      mapContainer?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      })
+    }
   })
 })
