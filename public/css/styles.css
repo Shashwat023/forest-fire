@@ -471,6 +471,7 @@ body {
   border-radius: 4px;
   background: var(--border-color);
   outline: none;
+  -webkit-appearance: none;
 }
 
 .slider::-webkit-slider-thumb {
@@ -788,6 +789,7 @@ body {
 .simulation-interface {
   display: grid;
   grid-template-columns: 2fr 1fr;
+  gap: 2rem;
   margin-bottom: 3rem;
   background: var(--background-color);
   border-radius: var(--border-radius);
@@ -797,20 +799,13 @@ body {
 
 /* Map Container Styles */
 .map-container-wrapper {
-  display: flex;
-  justify-content: center; /* Horizontal centering */
-  align-items: center;     /* Vertical centering */
-  height: 100%;            /* Make sure it stretches full height of the parent */
+  position: relative;
+  min-height: 500px;
 }
 
 .leaflet-map-container {
   width: 100%;
   height: 500px;
-  border-radius: 12px;
-  margin-left: 2rem;
-  margin-right: 2rem;
-  margin-bottom: 2rem;
-  overflow: hidden;
   background: #e8f4f8;
   position: relative;
 }
@@ -1098,18 +1093,358 @@ body {
   }
 }
 
-#uttarakhand-map {
-  height: 500px;
-  width: 100%;
-  border-radius: 12px;
+/* Fire Analysis Section Styles */
+.fire-analysis-section {
+  padding: 3rem 0;
+  background: var(--surface-color);
+}
+
+.analysis-interface {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  background: var(--background-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Map Section Styles */
+.map-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.map-container {
   position: relative;
+  height: 500px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.leaflet-map {
+  width: 100%;
+  height: 100%;
   z-index: 1;
 }
 
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.action-buttons .btn {
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.action-buttons .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Data Panel Styles */
+.data-panel {
+  padding: 2rem;
+  background: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.environmental-data h3 {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
+.env-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.env-item {
+  background: var(--surface-color);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.env-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.env-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.env-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Prediction Results Styles */
+.prediction-results {
+  background: linear-gradient(135deg, #ff5a5f10, #ff5a5f05);
+  border: 2px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.prediction-results h3 {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.prediction-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.prediction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.prediction-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.prediction-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.risk-label {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.risk-label.low-risk {
+  background: #4caf50;
+}
+
+.risk-label.moderate-risk {
+  background: #ff9800;
+}
+
+.risk-label.high-risk {
+  background: #ff5722;
+}
+
+/* Simulation Results Section */
+.simulation-results-section {
+  background: var(--background-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.results-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.results-header h3 {
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.results-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.time-series-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.time-series-item {
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.time-series-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.time-label {
+  background: var(--secondary-color);
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.simulation-image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.simulation-result-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.time-series-item:hover .simulation-result-image {
+  transform: scale(1.05);
+}
+
+.spread-stats {
+  padding: 1rem;
+  text-align: center;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--background-color);
+}
+
+.results-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Loading States */
+.btn-loading {
+  position: relative;
+  color: transparent;
+}
+
+.btn-loading::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin-left: -10px;
+  margin-top: -10px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom Fire Icon for Leaflet */
 .custom-fire-icon {
+  background: none !important;
+  border: none !important;
   font-size: 24px;
-  transform: translateY(-8px);
-  cursor: pointer;
+  text-align: center;
+  line-height: 30px;
+}
+
+/* Responsive Design for Analysis Section */
+@media (max-width: 1024px) {
+  .analysis-interface {
+    grid-template-columns: 1fr;
+  }
+
+  .data-panel {
+    order: -1;
+  }
+
+  .map-container {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .env-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .time-series-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .results-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .time-series-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-interface {
+    margin: 0 -10px;
+  }
+
+  .fire-analysis-section {
+    padding: 2rem 0;
+  }
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

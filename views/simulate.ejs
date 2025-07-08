@@ -2,79 +2,85 @@
 
 <div class="page-header">
     <div class="container">
-        <h1 class="page-title">Simulate Fire Spread</h1>
-        <p class="page-subtitle">Visualize how fires spread over time across different terrains</p>
+        <h1 class="page-title">Fire Risk Prediction & Simulation</h1>
+        <p class="page-subtitle">Click on the map to select a point, then predict fire risk or simulate spread</p>
     </div>
 </div>
 
-<section class="fire-simulation-section">
+<section class="fire-analysis-section">
     <div class="container">
-        <!-- Main Simulation Interface -->
-        <div class="simulation-interface">
-            <!-- Left: Map Container -->
-            <div class="map-container-wrapper">
-                <div class="leaflet-map-container" id="uttarakhand-map">
-                    <!-- Leaflet map will be initialized here -->
-                    <div class="map-placeholder">
-                        <p>🗺️ Uttarakhand Physical Map</p>
-                        <small>Click on the map to set ignition point</small>
-                    </div>
+        <div class="analysis-interface">
+            <!-- Left Side: Map and Controls -->
+            <div class="map-section">
+                <!-- Interactive Map -->
+                <div class="map-container">
+                    <div id="uttarakhand-map" class="leaflet-map"></div>
+                    <input type="hidden" id="ignition-coords" value="">
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary" id="predict-fire-btn" disabled>
+                        Predict Fire Risk
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="simulate-fire-btn" disabled>
+                        Simulate Fire Spread
+                    </button>
                 </div>
             </div>
             
-            <!-- Right: Weather Info Panel -->
-            <div class="weather-info-panel">
-                <div class="weather-header">
-                    <h3>Current Weather Conditions</h3>
-                    
-                </div>
-                
-                <div class="weather-metrics">
-                    <div class="weather-metric">
-                        <div class="metric-icon">🌡️</div>
-                        <div class="metric-details">
-                            <span class="metric-label">Temperature</span>
-                            <span class="metric-value">28°C</span>
+            <!-- Right Side: Environmental Data and Results -->
+            <div class="data-panel">
+                <!-- Environmental Input Features -->
+                <div class="environmental-data">
+                    <h3>Environmental Input Features</h3>
+                    <div class="env-grid">
+                        <div class="env-item">
+                            <span class="env-label">Temperature</span>
+                            <span class="env-value" id="temp-value">--°C</span>
                         </div>
-                    </div>
-                    
-                    <div class="weather-metric">
-                        <div class="metric-icon">💧</div>
-                        <div class="metric-details">
-                            <span class="metric-label">Humidity</span>
-                            <span class="metric-value">45%</span>
+                        <div class="env-item">
+                            <span class="env-label">Humidity</span>
+                            <span class="env-value" id="humidity-value">--%</span>
                         </div>
-                    </div>
-                    
-                    <div class="weather-metric">
-                        <div class="metric-icon">💨</div>
-                        <div class="metric-details">
-                            <span class="metric-label">Wind Speed</span>
-                            <span class="metric-value">12 km/h</span>
+                        <div class="env-item">
+                            <span class="env-label">NDVI</span>
+                            <span class="env-value" id="ndvi-value">--</span>
                         </div>
-                    </div>
-                    
-                    <div class="weather-metric">
-                        <div class="metric-icon">🧭</div>
-                        <div class="metric-details">
-                            <span class="metric-label">Wind Direction</span>
-                            <span class="metric-value">Northeast</span>
+                        <div class="env-item">
+                            <span class="env-label">Elevation</span>
+                            <span class="env-value" id="elevation-value">--m</span>
+                        </div>
+                        <div class="env-item">
+                            <span class="env-label">Wind Speed</span>
+                            <span class="env-value" id="wind-speed-value">-- km/h</span>
+                        </div>
+                        <div class="env-item">
+                            <span class="env-label">Slope</span>
+                            <span class="env-value" id="slope-value">--°</span>
                         </div>
                     </div>
                 </div>
                 
-                <div class="simulation-controls">
-                    <input type="hidden" id="ignition-coords" name="ignitionCoords">
-                    <button type="button" class="btn btn-primary btn-simulate" id="simulate-fire-btn">
-                        Simulate Fire Spread
-                    </button>
-                    <p class="simulation-note">Click on the map to select ignition point first</p>
+                <!-- ML Prediction Results -->
+                <div class="prediction-results" id="prediction-results" style="display: none;">
+                    <h3>Fire Risk Prediction from ML:</h3>
+                    <div class="prediction-details">
+                        <div class="prediction-item">
+                            <span class="prediction-label">Risk:</span>
+                            <span class="prediction-value" id="confidence-value">0.65</span>
+                        </div>
+                        <div class="prediction-item">
+                            <span class="prediction-label">Label:</span>
+                            <span class="prediction-value risk-label" id="risk-label">FIRE</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Simulation Results Grid -->
-        <div class="simulation-results-grid" id="simulation-results" style="display: none;">
+        <!-- Simulation Results (shown when simulate is clicked) -->
+        <div class="simulation-results-section" id="simulation-results" style="display: none;">
             <div class="results-header">
                 <h3>Fire Spread Simulation Results</h3>
                 <p>Predicted fire spread progression over time</p>
@@ -143,10 +149,9 @@
             </div>
             
             <div class="results-actions">
-                <button class="btn btn-secondary">📥 Download All Results</button>
-                <button class="btn btn-outline">🔄 Run New Simulation</button>
+                <button class="btn btn-secondary">📥 Download Results</button>
+                <button class="btn btn-outline" id="reset-analysis">🔄 Reset Analysis</button>
             </div>
         </div>
     </div>
 </section>
-

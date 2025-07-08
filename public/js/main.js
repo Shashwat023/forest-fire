@@ -154,277 +154,273 @@ document.addEventListener("DOMContentLoaded", () => {
     input.min = today
   })
 
-  // Fire Simulation Functionality
-  const simulateBtn = document.getElementById("simulate-fire-btn")
-  const simulationResults = document.getElementById("simulation-results")
-  const mapContainer = document.getElementById("uttarakhand-map")
+  // Fire Analysis Functionality (Merged Predict + Simulate)
+  const L = window.L // Declare the L variable
 
-  let selectedIgnitionPoint = null
-  const leafletMap = null
-
-  // Initialize Leaflet Map (placeholder for now)
-  function initializeMap() {
-    // This is where you would initialize the actual Leaflet map
-    // For now, we'll simulate map click functionality
-    if (mapContainer) {
-      mapContainer.addEventListener("click", (e) => {
-        // Simulate selecting an ignition point
-        const rect = mapContainer.getBoundingClientRect()
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
-
-        selectedIgnitionPoint = { x, y }
-
-        // Visual feedback for selected point
-        const existingMarker = mapContainer.querySelector(".ignition-marker")
-        if (existingMarker) {
-          existingMarker.remove()
-        }
-
-        const marker = document.createElement("div")
-        marker.className = "ignition-marker"
-        marker.style.cssText = `
-          position: absolute;
-          left: ${x - 10}px;
-          top: ${y - 10}px;
-          width: 20px;
-          height: 20px;
-          background: #ff5a5f;
-          border: 3px solid white;
-          border-radius: 50%;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-          z-index: 100;
-          animation: pulse 2s infinite;
-        `
-
-        mapContainer.appendChild(marker)
-
-        // Enable simulate button
-        if (simulateBtn) {
-          simulateBtn.disabled = false
-          simulateBtn.textContent = "🔥 Simulate Fire Spread"
-          simulateBtn.classList.remove("btn-disabled")
-        }
-
-        // Add pulse animation
-        const style = document.createElement("style")
-        style.textContent = `
-          @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-          }
-        `
-        document.head.appendChild(style)
-      })
-    }
-  }
-
-  // Handle simulation button click
-  if (simulateBtn) {
-    simulateBtn.addEventListener("click", () => {
-      if (!selectedIgnitionPoint) {
-        alert("Please click on the map to select an ignition point first!")
-        return
-      }
-
-      // Show loading state
-      simulateBtn.disabled = true
-      simulateBtn.textContent = "🔄 Simulating..."
-      simulateBtn.classList.add("btn-disabled")
-
-      // Simulate processing time
-      setTimeout(() => {
-        // Show results
-        if (simulationResults) {
-          simulationResults.style.display = "block"
-          simulationResults.classList.add("fade-in")
-
-          // Scroll to results
-          simulationResults.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          })
-        }
-
-        // Reset button
-        simulateBtn.disabled = false
-        simulateBtn.textContent = "🔥 Simulate Fire Spread"
-        simulateBtn.classList.remove("btn-disabled")
-
-        // Update weather data (simulate real-time data)
-        updateWeatherData()
-      }, 2000) // 2 second simulation delay
-    })
-  }
-
-  // Simulate weather data updates
-  function updateWeatherData() {
-    const weatherMetrics = document.querySelectorAll(".metric-value")
-    if (weatherMetrics.length >= 4) {
-      // Simulate slight variations in weather data
-      const temp = 26 + Math.floor(Math.random() * 6) // 26-31°C
-      const humidity = 40 + Math.floor(Math.random() * 20) // 40-60%
-      const windSpeed = 8 + Math.floor(Math.random() * 10) // 8-18 km/h
-      const directions = ["North", "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest"]
-      const windDirection = directions[Math.floor(Math.random() * directions.length)]
-
-      weatherMetrics[0].textContent = `${temp}°C`
-      weatherMetrics[1].textContent = `${humidity}%`
-      weatherMetrics[2].textContent = `${windSpeed} km/h`
-      weatherMetrics[3].textContent = windDirection
-    }
-  }
-
-  // Image hover effects for simulation results
-  function addImageHoverEffects() {
-    const resultImages = document.querySelectorAll(".simulation-result-image")
-    resultImages.forEach((img) => {
-      img.addEventListener("mouseenter", function () {
-        this.style.cursor = "pointer"
-      })
-
-      img.addEventListener("click", function () {
-        // Could open a modal or larger view
-        console.log("Clicked on simulation result:", this.alt)
-      })
-    })
-  }
-
-  // Initialize everything
-  initializeMap()
-
-  // Add hover effects when results are shown
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.target.id === "simulation-results" && mutation.target.style.display !== "none") {
-        setTimeout(addImageHoverEffects, 100)
-      }
-    })
-  })
-
-  if (simulationResults) {
-    observer.observe(simulationResults, {
-      attributes: true,
-      attributeFilter: ["style"],
-    })
-  }
-
-  // Handle "Run New Simulation" button
-  document.addEventListener("click", (e) => {
-    if (e.target.textContent.includes("Run New Simulation")) {
-      // Reset the simulation
-      if (simulationResults) {
-        simulationResults.style.display = "none"
-      }
-
-      // Clear ignition point
-      const marker = mapContainer?.querySelector(".ignition-marker")
-      if (marker) {
-        marker.remove()
-      }
-
-      selectedIgnitionPoint = null
-
-      // Reset button state
-      if (simulateBtn) {
-        simulateBtn.disabled = true
-        simulateBtn.textContent = "🔥 Simulate Fire Spread"
-        simulateBtn.classList.add("btn-disabled")
-      }
-
-      // Scroll back to top
-      mapContainer?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      })
-    }
-  })
-})
-
-document.addEventListener("DOMContentLoaded", function () {
-  const map = L.map("uttarakhand-map").setView([30.3165, 78.0322], 8); // Zoom centered over Uttarakhand
+  const map = L.map("uttarakhand-map").setView([30.3165, 78.0322], 8)
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(map);
+  }).addTo(map)
 
-  let fireMarker = null;
+  let fireMarker = null
+  let selectedCoords = null
 
-  map.on("click", function (e) {
-    const { lat, lng } = e.latlng;
+  // Map click handler
+  map.on("click", (e) => {
+    const { lat, lng } = e.latlng
+    selectedCoords = `${lat},${lng}`
 
+    // Remove existing marker
     if (fireMarker) {
-      map.removeLayer(fireMarker);
+      map.removeLayer(fireMarker)
     }
 
+    // Add new fire marker
     const fireIcon = L.divIcon({
       className: "custom-fire-icon",
-      html: "🔥",
+      html: "📍",
       iconSize: [30, 30],
       iconAnchor: [15, 15],
-    });
+    })
 
-    fireMarker = L.marker([lat, lng], { icon: fireIcon }).addTo(map);
+    fireMarker = L.marker([lat, lng], { icon: fireIcon }).addTo(map)
+    document.getElementById("ignition-coords").value = selectedCoords
 
-    document.getElementById("ignition-coords").value = `${lat},${lng}`;
+    // Enable buttons
+    const predictBtn = document.getElementById("predict-fire-btn")
+    const simulateBtn = document.getElementById("simulate-fire-btn")
 
-    console.log("Ignition Point Set:", lat, lng);
+    if (predictBtn) {
+      predictBtn.disabled = false
+      predictBtn.classList.remove("btn-disabled")
+    }
 
-    // on click :- coordinates send to backend for ml model
-    document.getElementById("simulate-fire-btn").addEventListener("click", async () => {
-  const coords = document.getElementById("ignition-coords").value;
+    if (simulateBtn) {
+      simulateBtn.disabled = false
+      simulateBtn.classList.remove("btn-disabled")
+    }
 
-  if (!coords) {
-    alert("Please click on the map to set an ignition point first.");
-    return;
+    console.log("Point selected:", lat, lng)
+  })
+
+  // Predict Fire Risk Button Handler
+  document.getElementById("predict-fire-btn").addEventListener("click", async () => {
+    if (!selectedCoords) {
+      alert("Please click on the map to select a point first.")
+      return
+    }
+
+    const predictBtn = document.getElementById("predict-fire-btn")
+    const originalText = predictBtn.textContent
+
+    // Show loading state
+    predictBtn.disabled = true
+    predictBtn.classList.add("btn-loading")
+    predictBtn.textContent = "Predicting..."
+
+    try {
+      const response = await fetch("/simulate-fire", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ coords: selectedCoords }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        const envData = data.data
+        const prediction = data.prediction
+
+        // Update environmental data display
+        updateEnvironmentalData(envData)
+
+        // Show prediction results
+        showPredictionResults(prediction)
+
+        console.log("Environmental Data:", envData)
+        console.log("Prediction:", prediction)
+      } else {
+        alert("Error: " + data.message)
+      }
+    } catch (err) {
+      console.error("Prediction Error:", err)
+      alert("Something went wrong while predicting fire risk.")
+    } finally {
+      // Reset button state
+      predictBtn.disabled = false
+      predictBtn.classList.remove("btn-loading")
+      predictBtn.textContent = originalText
+    }
+  })
+
+  // Simulate Fire Spread Button Handler
+  document.getElementById("simulate-fire-btn").addEventListener("click", async () => {
+    if (!selectedCoords) {
+      alert("Please click on the map to select a point first.")
+      return
+    }
+
+    const simulateBtn = document.getElementById("simulate-fire-btn")
+    const originalText = simulateBtn.textContent
+
+    // Show loading state
+    simulateBtn.disabled = true
+    simulateBtn.classList.add("btn-loading")
+    simulateBtn.textContent = "Simulating..."
+
+    try {
+      // First get environmental data and prediction
+      const response = await fetch("/simulate-fire", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ coords: selectedCoords }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        const envData = data.data
+        const prediction = data.prediction
+
+        // Update environmental data display
+        updateEnvironmentalData(envData)
+
+        // Show prediction results
+        showPredictionResults(prediction)
+
+        // Show simulation results after a delay
+        setTimeout(() => {
+          const simulationResults = document.getElementById("simulation-results")
+          if (simulationResults) {
+            simulationResults.style.display = "block"
+            simulationResults.classList.add("fade-in")
+
+            // Scroll to results
+            simulationResults.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            })
+          }
+        }, 1000)
+
+        console.log("Simulation Data:", envData)
+        console.log("Prediction:", prediction)
+      } else {
+        alert("Error: " + data.message)
+      }
+    } catch (err) {
+      console.error("Simulation Error:", err)
+      alert("Something went wrong while simulating fire spread.")
+    } finally {
+      // Reset button state
+      simulateBtn.disabled = false
+      simulateBtn.classList.remove("btn-loading")
+      simulateBtn.textContent = originalText
+    }
+  })
+
+  // Reset Analysis Button Handler
+  document.getElementById("reset-analysis").addEventListener("click", () => {
+    // Hide results
+    const predictionResults = document.getElementById("prediction-results")
+    const simulationResults = document.getElementById("simulation-results")
+
+    if (predictionResults) predictionResults.style.display = "none"
+    if (simulationResults) simulationResults.style.display = "none"
+
+    // Clear marker
+    if (fireMarker) {
+      map.removeLayer(fireMarker)
+      fireMarker = null
+    }
+
+    // Reset coordinates
+    selectedCoords = null
+    document.getElementById("ignition-coords").value = ""
+
+    // Disable buttons
+    const predictBtn = document.getElementById("predict-fire-btn")
+    const simulateBtn = document.getElementById("simulate-fire-btn")
+
+    if (predictBtn) {
+      predictBtn.disabled = true
+      predictBtn.classList.add("btn-disabled")
+    }
+
+    if (simulateBtn) {
+      simulateBtn.disabled = true
+      simulateBtn.classList.add("btn-disabled")
+    }
+
+    // Reset environmental data
+    resetEnvironmentalData()
+
+    // Scroll back to map
+    document.getElementById("uttarakhand-map").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    })
+  })
+
+  // Helper function to update environmental data display
+  function updateEnvironmentalData(envData) {
+    document.getElementById("temp-value").textContent = `${Math.round(envData.lst || 0)}°C`
+    document.getElementById("humidity-value").textContent = `${Math.round(envData.relative_humidity || 0)}%`
+    document.getElementById("ndvi-value").textContent = (envData.ndvi || 0).toFixed(3)
+    document.getElementById("elevation-value").textContent = `${Math.round(envData.elevation || 0)}m`
+    document.getElementById("wind-speed-value").textContent = `${Math.round(envData.wind_speed || 0)} km/h`
+    document.getElementById("slope-value").textContent = `${Math.round(envData.slope || 0)}°`
   }
 
-  try {
-    const response = await fetch("/simulate-fire", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ coords }), // ✅ Proper backend-friendly format
-    });
+  // Helper function to show prediction results
+  function showPredictionResults(prediction) {
+    const predictionResults = document.getElementById("prediction-results")
+    const confidenceValue = document.getElementById("confidence-value")
+    const riskLabel = document.getElementById("risk-label")
 
-    const data = await response.json();
+    if (predictionResults && confidenceValue && riskLabel) {
+      confidenceValue.textContent = (prediction.confidence || 0).toFixed(3)
+      riskLabel.textContent = prediction.label || "UNKNOWN"
 
-    if (data.success) {
-  const envData = data.data;
-  const prediction = data.prediction;
+      // Add appropriate risk class
+      riskLabel.className = "prediction-value risk-label"
+      if (prediction.label === "NO FIRE") {
+        riskLabel.classList.add("low-risk")
+      } else if (prediction.label === "FIRE") {
+        riskLabel.classList.add("high-risk")
+      }
 
-  console.log("🔥 Environmental Data from Python:", envData);
-  console.log("🔮 Fire Risk Prediction from ML:", prediction);
-
-  const msg = `
-  ✅ Prediction Complete!
-
-  🔍 Environmental Data:
-  Lat: ${envData.lat}
-  Lon: ${envData.lon}
-  NDVI: ${envData.ndvi}
-  LST: ${envData.lst}
-  Slope: ${envData.slope}
-  Aspect: ${envData.aspect}
-  Wind Speed: ${envData.wind_speed}
-  Humidity: ${envData.relative_humidity}
-
-  Prediction:
-  Label: ${prediction.label}
-  Confidence: ${prediction.confidence}
-  `;
-
-  alert(msg);
-} else {
-  alert("Backend error: " + data.message);
-}
- } catch (err) {
-    console.error("JS Error:", err);
-    alert("Something went wrong while sending request.");
+      predictionResults.style.display = "block"
+      predictionResults.classList.add("fade-in")
+    }
   }
-});
 
-  });
-});
+  // Helper function to reset environmental data
+  function resetEnvironmentalData() {
+    document.getElementById("temp-value").textContent = "--°C"
+    document.getElementById("humidity-value").textContent = "--%"
+    document.getElementById("ndvi-value").textContent = "--"
+    document.getElementById("elevation-value").textContent = "--m"
+    document.getElementById("wind-speed-value").textContent = "-- km/h"
+    document.getElementById("slope-value").textContent = "--°"
+  }
+
+  // Initialize with disabled buttons
+  const predictBtn = document.getElementById("predict-fire-btn")
+  const simulateBtn = document.getElementById("simulate-fire-btn")
+
+  if (predictBtn) {
+    predictBtn.disabled = true
+    predictBtn.classList.add("btn-disabled")
+  }
+
+  if (simulateBtn) {
+    simulateBtn.disabled = true
+    simulateBtn.classList.add("btn-disabled")
+  }
+})

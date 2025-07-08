@@ -25,13 +25,6 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/predict', (req, res) => {
-  res.render('predict', { 
-    title: 'Home', 
-    currentPage: 'home' 
-  });
-});
-
 app.get('/simulate', (req, res) => {
   res.render('simulate', { 
     title: 'Home', 
@@ -91,20 +84,9 @@ app.post("/simulate-fire", async (req, res) => {
   });
 });
 
-
-
 app.get('/download', (req, res) => {
   res.render('download', { 
     title: 'Home', 
     currentPage: 'home' 
   });
 });
-
-// app.post('/predict', (req, res) => {
-//   // Process prediction
-//   res.render('predict', { 
-//     title: 'Predict', 
-//     currentPage: 'predict',
-//     prediction: results 
-//   });
-// });
