@@ -3,6 +3,8 @@ const app = express();
 // const methodOverride = require("method-override");
 const path = require("path");
 const ejsMate = require("ejs-mate");
+const { execFile } = require("child_process");
+const axios = require("axios");
 
 app.set("view engine", "ejs");                    
 app.set("views", path.join(__dirname, "views"));
@@ -37,31 +39,58 @@ app.get('/simulate', (req, res) => {
   });
 });
 
-app.post("/simulate-fire", (req, res) => {
+app.post("/simulate-fire", async (req, res) => {
   const { coords } = req.body;
+  if (!coords) return res.status(400).json({ message: "Coordinates are required." });
 
-  if (!coords) {
-    return res.status(400).json({ message: "Coordinates are required." });
-  }
+  const [lat, lon] = coords.split(",").map(Number);
+  const year = new Date().getFullYear();
 
-  // Simulate fire spread here (you can later plug in your ML model)
-  console.log("Simulating fire at:", coords);
+  const scriptPath = path.join(__dirname, "./py_files/extract_data.py");
 
-  // Dummy response for now
-  return res.json({
-    success: true,
-    images: {
-      "1hr": "/images/1hr.png",
-      "2hr": "/images/2hr.png",
-      // ...
-    },
-    stats: {
-      "1hr": "15 hectares",
-      "2hr": "45 hectares",
-      // ...
-    },
+  // STEP 1: Run extract_data.py
+  execFile("python", [scriptPath, lat, lon, year], async (error, stdout, stderr) => {
+    if (error) {
+      console.error("❌ Python error:", error);
+      return res.status(500).json({ message: "Python script error." });
+    }
+
+    try {
+      const extractedData = JSON.parse(stdout);  // This is GEE + weather data
+
+      // STEP 2: Prepare model input (pick only needed keys)
+      const modelInput = {
+        lat: extractedData.lat,
+        lon: extractedData.lon,
+        elevation: extractedData.elevation,
+        ndvi: extractedData.ndvi,
+        lst: extractedData.lst,
+        slope: extractedData.slope,
+        aspect: extractedData.aspect,
+        land_cover_type: extractedData.land_cover_type,
+        relative_humidity: extractedData.relative_humidity,
+        wind_speed: extractedData.wind_speed,
+        month: new Date().getMonth() + 1,  // Current month (1–12)
+      };
+
+      // STEP 3: Send to FastAPI model
+      const fastapiResponse = await axios.post("http://localhost:8000/predict_point", modelInput);
+      const prediction = fastapiResponse.data;
+
+      // STEP 4: Send back to frontend
+      return res.json({
+        success: true,
+        data: extractedData,
+        prediction: prediction,
+      });
+
+    } catch (err) {
+      console.error("❌ Failed to parse/forward data:", err);
+      return res.status(500).json({ message: "Failed to process prediction." });
+    }
   });
 });
+
 
 
 app.get('/download', (req, res) => {

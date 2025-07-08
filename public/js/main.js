@@ -341,3 +341,90 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })
 })
+
+document.addEventListener("DOMContentLoaded", function () {
+  const map = L.map("uttarakhand-map").setView([30.3165, 78.0322], 8); // Zoom centered over Uttarakhand
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors",
+  }).addTo(map);
+
+  let fireMarker = null;
+
+  map.on("click", function (e) {
+    const { lat, lng } = e.latlng;
+
+    if (fireMarker) {
+      map.removeLayer(fireMarker);
+    }
+
+    const fireIcon = L.divIcon({
+      className: "custom-fire-icon",
+      html: "🔥",
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+    });
+
+    fireMarker = L.marker([lat, lng], { icon: fireIcon }).addTo(map);
+
+    document.getElementById("ignition-coords").value = `${lat},${lng}`;
+
+    console.log("Ignition Point Set:", lat, lng);
+
+    // on click :- coordinates send to backend for ml model
+    document.getElementById("simulate-fire-btn").addEventListener("click", async () => {
+  const coords = document.getElementById("ignition-coords").value;
+
+  if (!coords) {
+    alert("Please click on the map to set an ignition point first.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/simulate-fire", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ coords }), // ✅ Proper backend-friendly format
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+  const envData = data.data;
+  const prediction = data.prediction;
+
+  console.log("🔥 Environmental Data from Python:", envData);
+  console.log("🔮 Fire Risk Prediction from ML:", prediction);
+
+  const msg = `
+  ✅ Prediction Complete!
+
+  🔍 Environmental Data:
+  Lat: ${envData.lat}
+  Lon: ${envData.lon}
+  NDVI: ${envData.ndvi}
+  LST: ${envData.lst}
+  Slope: ${envData.slope}
+  Aspect: ${envData.aspect}
+  Wind Speed: ${envData.wind_speed}
+  Humidity: ${envData.relative_humidity}
+
+  Prediction:
+  Label: ${prediction.label}
+  Confidence: ${prediction.confidence}
+  `;
+
+  alert(msg);
+} else {
+  alert("Backend error: " + data.message);
+}
+ } catch (err) {
+    console.error("JS Error:", err);
+    alert("Something went wrong while sending request.");
+  }
+});
+
+  });
+});
