@@ -20,8 +20,9 @@ app.add_middleware(
 
 # Try to load model if available
 try:
-    with open("best_random_forest_model.pkl", "rb") as f:
+    with open(r"D:\codes\hackathon\hackorbit\py_files\best_random_forest_model.pkl", "rb") as f:
         model = joblib.load(f)
+        print("model succ loaded")
 except:
     model = None
     print("Warning: Model not found. Using dummy confidences.")
@@ -69,12 +70,25 @@ def predict_point(req: PointRequest):
         "land_cover_type", "month", "relative_humidity", "wind_speed"
     ]
 
+    print(df)
     if model is not None:
         proba = model.predict_proba(df[feature_order])[0][1]
-        label = "🔥 FIRE" if proba >= 0.5 else "🌿 SAFE"
     else:
+        print("using fake inputs")
         proba = round(random.uniform(0, 1), 2)
-        label = "🔥 FIRE" if proba >= 0.5 else "🌿 SAFE"
+
+    # Assign label based on proba ranges
+    if proba < 0.2:
+        label = "🟢 Very low chances"
+    elif proba < 0.4:
+        label = "🟡 Low chances"
+    elif proba < 0.6:
+        label = "🟣 Moderate chances"
+    elif proba < 0.8:
+        label = "🟠 Elevated risk"
+    else:
+        label = "🔴 Possible fire hazard"
+
 
     return {
         "label": label,

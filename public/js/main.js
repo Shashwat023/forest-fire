@@ -159,9 +159,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const map = L.map("uttarakhand-map").setView([30.3165, 78.0322], 8)
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(map)
+  L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    maxZoom: 20,
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    attribution: 'Map data © Google'
+  }).addTo(map);
+
+  fetch('/js/uttrakhand.geojson')
+  .then(response => response.json())
+  .then(data => {
+    const boundaryLayer = L.geoJSON(data);
+    boundaryLayer.addTo(map);
+
+    // Get bounds of the geojson
+    const bounds = boundaryLayer.getBounds();
+
+    // Fit map to the boundary
+    map.fitBounds(bounds);
+
+    // Restrict panning outside Uttarakhand
+    map.setMaxBounds(bounds);
+    // map.setMinZoom(map.getZoom()); // Optional: lock zoom out
+
+    // Prevent dragging too far outside
+    map.on('drag', function() {
+      map.panInsideBounds(bounds, { animate: true });
+    });
+  });
 
   let fireMarker = null
   let selectedCoords = null
@@ -373,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("humidity-value").textContent = `${Math.round(envData.relative_humidity || 0)}%`
     document.getElementById("ndvi-value").textContent = (envData.ndvi || 0).toFixed(3)
     document.getElementById("elevation-value").textContent = `${Math.round(envData.elevation || 0)}m`
-    document.getElementById("wind-speed-value").textContent = `${Math.round(envData.wind_speed || 0)} km/h`
+    document.getElementById("wind-speed-value").textContent = `${(envData.wind_speed || 0).toFixed(3)} km/h`
     document.getElementById("slope-value").textContent = `${Math.round(envData.slope || 0)}°`
   }
 

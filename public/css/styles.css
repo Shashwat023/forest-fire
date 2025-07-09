@@ -1346,10 +1346,10 @@ body {
 }
 
 /* Loading States */
-.btn-loading {
+/* .btn-loading {
   position: relative;
   color: transparent;
-}
+} */
 
 .btn-loading::after {
   content: "";
@@ -1363,7 +1363,7 @@ body {
   border: 2px solid transparent;
   border-top-color: currentColor;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  /* animation: spin 3s linear infinite; */
 }
 
 @keyframes spin {
